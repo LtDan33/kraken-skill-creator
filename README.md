@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/banner.png" alt="skill-creator-plus" width="100%">
+</p>
+
 # skill-creator-plus
 
 A free Claude skill that audits, builds and improves other skills against Anthropic's own skill-writing rules, including what changed for the newest Claude models.
