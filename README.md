@@ -8,6 +8,8 @@ A free Claude skill that audits, builds and improves other skills against Anthro
 
 Point it at a skill (or a whole folder of skills) and it gives you a findings report first: one clean HTML page that shows what needs your decision, what it suggests changing, and every rule marked pass, fail or not applicable with the file and line as evidence. It changes nothing until you say which fixes to apply.
 
+Every audit also runs Anthropic's own skill-creator on the same skill, blind, and compares the two. The checklist reads the skill's text; the official tool measures what the skill does. Each difference is settled from Anthropic's pages, and anything the official tool catches that the checklist has no rule for becomes a candidate rule, so the checklist keeps learning from the reference instead of drifting away from it.
+
 ## Why this matters now
 
 A skill is a folder with a `SKILL.md` file that teaches Claude how to do a job the same way each time. Anthropic publishes clear rules for writing them, and it is easy to break several without noticing: descriptions that never trigger, reference files Claude only half reads, rules buried where compaction cuts them.
@@ -44,7 +46,7 @@ Just ask in plain words. Three modes:
 
 | Mode | Say something like | You get |
 |---|---|---|
-| AUDIT | "Audit my deploy skill against Anthropic's rules." / "Check every skill in ~/.claude/skills and tell me what to fix first." | An HTML report: decisions first, then ranked fixes, then one row per rule with fails first. Nothing is edited until you pick. |
+| AUDIT | "Audit my deploy skill against Anthropic's rules." / "Check every skill in ~/.claude/skills and tell me what to fix first." | An HTML report: decisions first, then ranked fixes, then one row per rule with fails first, then the cross-check against Anthropic's skill-creator. Nothing is edited until you pick. |
 | NEW | "Make this a skill, we write release notes like this every Friday." | Test prompts first, then a new skill folder that passes the validator. |
 | REFINE | "The report skill keeps forgetting the date filter. Fix the skill." | The rule rewritten around its reason, usually shorter than before. |
 
@@ -62,6 +64,22 @@ The text of a skill is only part of the story. Before marking rules, an audit al
 - **What it generates.** If the skill writes a prompt, template or code for another agent, the audit fills it once and checks that output too.
 
 It also checks the docs before reporting that a tool or command does not exist, and asks how a skill should start before judging its description: a skill that should fire only on its own name is a valid choice.
+
+## The cross-check
+
+| Tier | When | What the official skill-creator runs |
+|---|---|---|
+| Full | Skills that spend money, publish, deploy, run agents, or that you rely on heavily | Three test prompts with and without the skill, graded, plus the trigger eval |
+| Trigger only | Other skills Claude starts on its own | The trigger eval: does it fire on the right requests and stay quiet on near-misses? |
+| Off | Quick reviews | Nothing; the report says so |
+
+The official pass runs in a fresh agent that never sees the checklist findings. Then every finding from either side is settled:
+
+- **Both found it:** confirmed.
+- **Only one found it:** looked up in Anthropic's pages, with the link and date, and marked confirmed, dismissed or unverified.
+- **They disagree:** measured behavior wins for that skill.
+
+A problem the official pass finds that no rule covers goes into `references/candidate-rules.md`, and becomes a rule once it shows up in two different skills' audits. The trigger eval needs the `claude` command-line tool, so outside Claude Code the cross-check runs the behavior part only and says so.
 
 ## The validator
 
@@ -165,6 +183,8 @@ Rules were checked against Anthropic's pages on 2026-10-05.
 SKILL.md                      the skill: rules, the three modes, links to the rest
 references/audit-checklist.md every rule with why, how to check, and the report format
 references/report-template.html the HTML audit report to copy and fill
+references/cross-check.md      running the official skill-creator blind and reconciling the two
+references/candidate-rules.md  checklist gaps the official tool found, waiting for a second sighting
 references/authoring-guide.md how to write each part of a skill
 references/testing.md         evaluations, baselines, model sweeps, test before you delete
 scripts/validate_skill.py     the validator

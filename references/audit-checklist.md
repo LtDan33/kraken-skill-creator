@@ -102,8 +102,8 @@ Claude Fable 5, Opus 5.5 and Sonnet 5.5 follow instructions closely. Skills writ
 ## Testing
 
 - **TS1 Evaluations first.** At least three realistic prompts, written before the skill, with a baseline run without it. Check: read (are they in the skill folder or its repo?). Source: P.
-- **TS2 Fresh-session test on real work.** A fresh Claude runs real tasks with the skill on and off, and someone watches which files it opens and what it skips. Why: leftover context from writing the skill hides gaps. Check: read (ask the user). Source: P, CC.
-- **TS3 Tested on the models it will run on.** Haiku: enough guidance? Sonnet: clear and efficient? Opus: no over-explaining? Test prudently: run the full sweep for skills you rely on a lot or that have real consequences, and test the rest on the model you use most. Why: sweeping every skill across every model burns tokens for little gain. Check: read (ask the user). Source: P (the three questions), ADV (testing prudently).
+- **TS2 Fresh-session test on real work.** A fresh Claude runs real tasks with the skill on and off, and someone watches which files it opens and what it skips. Why: leftover context from writing the skill hides gaps. Check: read (ask the user), or take the cross-check's with-skill and without-skill runs as evidence. Source: P, CC.
+- **TS3 Tested on the models it will run on.** Haiku: enough guidance? Sonnet: clear and efficient? Opus: no over-explaining? Test prudently: run the full sweep for skills you rely on a lot or that have real consequences, and test the rest on the model you use most. Why: sweeping every skill across every model burns tokens for little gain. Check: read (ask the user), or take the official pass's run from the cross-check as evidence. Source: P (the three questions), ADV (testing prudently).
 - **TS4 Lessons from real runs folded in.** Read what the skill's real runs left behind: retros, run logs, issues, past audits. A problem seen in two or more runs should be fixed in the skill; a problem seen once is a candidate to watch. Why: the most important findings often sit in run history, not in the text, and one odd run should not reshape a skill. Check: read (ask the user where run history lives). Source: ADV.
 
 ## Library and dependency checks
@@ -131,8 +131,9 @@ Write the report as one HTML file, `<skill-name>-audit.html`, from [report-templ
 1. **Needs your decision:** anything that changes behaviour, deletes a section, or needs a test before a deletion. Each one phrased as a question with its options.
 2. **Suggested changes:** numbered, highest impact first, related rule failures grouped under one change, each with its rule IDs and a one-line reason.
 3. **Findings:** fails first and open, then not applicable and passes, collapsed. Every row has file and line evidence.
+4. **Cross-check:** the tier, what both passes found, what only one found and how each was settled (with the source link and date), the trigger results, and candidate rules added (references/cross-check.md, "Report it").
 
-Then reply in chat with the counts, the path to the file, and the numbered changes, ending with: "Nothing has been changed yet. Reply with the change numbers to apply." The rows use this content (for a folder of skills, start with the validator's `--all` table):
+Then reply in chat with the counts (including how many findings the cross-check confirmed, dismissed or left unverified), the path to the file, and the numbered changes, ending with: "Nothing has been changed yet. Reply with the change numbers to apply." The rows use this content (for a folder of skills, start with the validator's `--all` table):
 
 ```markdown
 Validator: <E> errors, <W> warnings, <N> notes. Checklist: <P> pass, <F> fail, <X> not applicable.

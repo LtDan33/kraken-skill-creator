@@ -3,7 +3,7 @@
   Audit report template. Copy it to <skill-name>-audit.html and replace every {{...}}.
   Repeat the blocks marked REPEAT once per item and delete the sample rows.
   Keep it as it is: one file, no scripts, no web fonts, so it opens anywhere, offline included.
-  Order is fixed: decisions first, then suggested changes, then the evidence.
+  Order is fixed: decisions first, then suggested changes, then the evidence, then the cross-check.
 -->
 <html lang="en">
 <head>
@@ -117,6 +117,32 @@ footer .ask{color:var(--ink);font-weight:700;font-size:1rem;margin-bottom:8px}
     </tbody>
   </table>
 </details>
+
+<h2>Cross-check with the official skill-creator</h2>
+<!-- Tier and what ran, then one row per finding that only one pass found. If the cross-check was off or couldn't run, say why in one line and delete the table. -->
+<p class="meta">Tier: {{Full | Trigger only | Off}}. {{what ran, and anything that couldn't}}. Both passes found {{n}}; only the checklist {{n}}; only the official pass {{n}}.</p>
+<details open>
+  <summary>Differences and how they were settled</summary>
+  <table>
+    <thead><tr><th>Finding</th><th>Found by</th><th>Settled by</th><th>Result</th></tr></thead>
+    <tbody>
+      <!-- REPEAT. Result: confirmed, dismissed or unverified. Settled by: the Anthropic page and the date checked. -->
+      <tr><td class="rule">{{finding}}<small>{{rule ID, or "no rule covers this"}}</small></td><td>{{checklist | official pass}}</td><td>{{source link}}, checked {{date}}</td><td class="fix">{{result}}</td></tr>
+    </tbody>
+  </table>
+</details>
+<details>
+  <summary>Trigger results ({{queries right}} of {{total}})</summary>
+  <table>
+    <thead><tr><th>Query</th><th>Should trigger</th><th>Trigger rate</th></tr></thead>
+    <tbody>
+      <!-- REPEAT, queries it got wrong first -->
+      <tr><td>{{query}}</td><td>{{yes | no}}</td><td>{{rate}}</td></tr>
+    </tbody>
+  </table>
+</details>
+<!-- Candidate rules added this audit, one line each, or delete this paragraph. -->
+<p class="meta">Candidate rules added: {{one line each}}</p>
 
 <footer>
   <p class="ask">Nothing has been changed yet. Reply with the change numbers to apply.</p>

@@ -42,7 +42,7 @@ Run each prompt in a new session with the skill on, then again with it off, and 
 
 - **Personal or project skill in Claude Code:** turn it off for the second run with `"skillOverrides": { "<skill-name>": "off" }` in settings, or from the `/skills` menu.
 - **Skill inside a plugin:** use `claude plugin eval`, which repeats each run with no plugin loaded.
-- **To automate it:** Anthropic's skill-creator plugin (`/plugin install skill-creator@claude-plugins-official`) runs with-skill and without-skill passes, grades them and compares token cost and time.
+- **To automate it:** Anthropic's skill-creator plugin (`/plugin install skill-creator@claude-plugins-official`) runs with-skill and without-skill passes, grades them and compares token cost and time. Every audit already runs it as the cross-check (cross-check.md), so an audit's official pass doubles as this baseline.
 
 ## Claude A writes, Claude B tests
 
