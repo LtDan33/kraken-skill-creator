@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pdf-helper audit</title>
+<style>
+:root{--bg:#f8fafc;--card:#fff;--ink:#0f172a;--muted:#475569;--line:#e2e8f0;--accent:#4338ca;
+  --fail:#be123c;--fail-bg:#fff1f2;--pass:#047857;--pass-bg:#ecfdf5;--na:#64748b;--na-bg:#f1f5f9;
+  --decide:#b45309;--decide-bg:#fffbeb;--code:#f1f5f9}
+@media (prefers-color-scheme:dark){:root{--bg:#0f172a;--card:#1e293b;--ink:#f1f5f9;--muted:#cbd5e1;--line:#334155;
+  --accent:#a5b4fc;--fail:#fb7185;--fail-bg:#4c0519;--pass:#34d399;--pass-bg:#022c22;--na:#94a3b8;--na-bg:#1e293b;
+  --decide:#fbbf24;--decide-bg:#451a03;--code:#334155}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:40px 16px 64px}
+h1{font-size:2rem;line-height:1.2;margin:0}
+h2{font-size:1.35rem;margin:40px 0 12px}
+h3{font-size:1.05rem;margin:0 0 4px}
+p{margin:0}
+code{font:0.85em ui-monospace,Menlo,Consolas,monospace;background:var(--code);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+.meta{color:var(--muted);margin-top:8px}
+.score{margin-top:24px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;gap:32px;flex-wrap:wrap}
+.score div{color:var(--muted);font-size:.9rem}
+.score b{display:block;font-size:1.8rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.f b{color:var(--fail)} .n b{color:var(--na)} .p b{color:var(--pass)} .v b{color:var(--ink)}
+.empty{color:var(--muted);font-style:italic}
+.decide{background:var(--decide-bg);border:1px solid var(--line);border-left:4px solid var(--decide);border-radius:8px;padding:14px 18px;margin-bottom:10px}
+.decide p{color:var(--muted)}
+ol.changes{margin:0;padding:0;list-style:none;counter-reset:c}
+ol.changes li{counter-increment:c;position:relative;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 18px 14px 56px;margin-bottom:10px}
+ol.changes li::before{content:counter(c);position:absolute;left:16px;top:14px;width:28px;height:28px;border-radius:50%;border:2px solid var(--accent);color:var(--accent);display:grid;place-items:center;font-weight:700}
+.why{color:var(--muted)}
+.ids{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+.ids span{font-size:.8rem;font-weight:700;padding:0 8px;border-radius:999px;background:var(--fail-bg);color:var(--fail)}
+.pattern{font-size:.85rem;font-weight:700;color:var(--accent)}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden}
+summary{cursor:pointer;padding:14px 18px;font-weight:700}
+summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th,td{text-align:left;vertical-align:top;padding:10px 18px;border-top:1px solid var(--line)}
+th{color:var(--muted);font-size:.85rem}
+td.rule{width:28%;font-weight:700} td.rule small{display:block;font-weight:400;color:var(--muted)}
+td.fix{width:14%;color:var(--muted)}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+footer .ask{color:var(--ink);font-weight:700;font-size:1rem;margin-bottom:8px}
+@media (max-width:640px){table,tbody,tr,td{display:block;width:100%}thead{display:none}tr{border-top:1px solid var(--line);padding:10px 16px}td{border:0;padding:2px 0}td.rule,td.fix{width:100%}}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>pdf-helper audit</h1>
+  <p class="meta"><code>examples/pdf-helper/</code>, the only copy. Sample report. Report only: nothing has been changed.</p>
+  <div class="score">
+    <div class="v"><b>8 / 11 / 6</b>validator errors / warnings / notes</div>
+    <div class="f"><b>30</b>fail</div>
+    <div class="n"><b>9</b>not applicable</div>
+    <div class="p"><b>11</b>pass</div>
+  </div>
+</header>
+
+<h2>Needs your decision</h2>
+<div class="decide">
+  <h3>HK1</h3>
+  <p>line 31 says a checker runs after each save, but the skill has no checker. Option A: add a check script and a <code>PostToolUse</code> hook on file writes, so it runs no matter what. Option B: drop the rule. A starts with a new script; B is a one-line delete.</p>
+</div>
+<div class="decide">
+  <h3>Renaming</h3>
+  <p>the folder changes the slash command from <code>/pdf-helper</code> to <code>/processing-pdfs</code>.</p>
+</div>
+
+<h2>Suggested changes</h2>
+<ol class="changes">
+  <li>
+    <h3>Fix the frontmatter</h3>
+    <p class="why">Name <code>processing-pdfs</code> (folder renamed), description: &quot;Extracts text from PDFs, fills PDF forms and merges PDF files. Use when the user mentions PDFs, PDF forms, or extracting, filling or merging PDF files.&quot; Move <code>version</code> under <code>metadata:</code>. Why first: today the YAML fails, so the skill has no description and can never trigger on its own.</p>
+    <div class="ids"><span>FM1</span><span>FM2</span><span>FM3</span><span>DS2</span><span>DS3</span><span>FM4</span></div>
+  </li>
+  <li>
+    <h3>Cut the filler at the top</h3>
+    <p class="why">Delete lines 9, 11 and 20; name one default library per job. Line 20 can get the request refused outright on newer models.</p>
+    <div class="ids"><span>ST2</span><span>CT1</span><span>CT7</span><span>NM1</span><span>NM2</span><span>NM4</span></div>
+  </li>
+  <li>
+    <h3>Fix the file layout</h3>
+    <p class="why">Forward slash on line 30, fold details.md into advanced.md, add a contents list to api.md, delete doc2.md, SKILL.md.bak and the notes.md link.</p>
+    <div class="ids"><span>ST4 to ST7</span></div>
+  </li>
+  <li>
+    <h3>Rewrite the steps</h3>
+    <p class="why">A checklist with the exact command (<code>python scripts/fill_form.py input.pdf values.json output.pdf</code>), a verify step that opens the output and lists empty fields, &quot;If a field is empty, return to Step 3&quot;, a reason on each rule, no dated API lines, merge steps written or the <code>TODO</code> removed.</p>
+    <div class="ids"><span>WF1</span><span>WF2</span><span>CT2</span><span>CT3</span><span>CT9</span><span>NM3</span><span>NM5</span></div>
+  </li>
+  <li>
+    <h3>Harden fill_form.py</h3>
+    <p class="why">Clear messages for a missing file or bad JSON, unused constants deleted, <code>pip install pdfplumber pypdf</code> next to the scripts list.</p>
+    <div class="ids"><span>SC1</span><span>SC2</span><span>SC4</span><span>SC5</span></div>
+  </li>
+  <li>
+    <h3>Add tests</h3>
+    <p class="why">Three prompts (extract, fill, merge) plus one that should not trigger, run with and without the skill in a fresh session on the model you use most.</p>
+    <div class="ids"><span>TS1 to TS3</span></div>
+  </li>
+</ol>
+
+<h2>Findings</h2>
+<details open>
+  <summary>Fail (30)</summary>
+  <table>
+    <thead><tr><th>Rule</th><th>Evidence</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td class="rule">FM1<small>Frontmatter parses</small></td><td>SKILL.md:4 unquoted &quot;: &quot; in the description; the skill loads with no fields</td><td class="fix">Change 1</td></tr>
+      <tr><td class="rule">FM2<small>Valid name</small></td><td>SKILL.md:2 <code>Claude_PDF_Helper</code>: capitals, underscores, reserved word, differs from folder</td><td class="fix">Change 1: <code>processing-pdfs</code>, folder renamed to match</td></tr>
+      <tr><td class="rule">FM3<small>Name says the activity</small></td><td>SKILL.md:2 &quot;helper&quot; is vague</td><td class="fix">Change 1</td></tr>
+      <tr><td class="rule">DS2<small>Third person</small></td><td>SKILL.md:4 &quot;I can help you&quot;</td><td class="fix">Change 1</td></tr>
+      <tr><td class="rule">DS3<small>What and when</small></td><td>SKILL.md:4 no &quot;Use when&quot; clause, no trigger words</td><td class="fix">Change 1</td></tr>
+      <tr><td class="rule">ST2<small>Key instructions at the top</small></td><td>SKILL.md:9-11 open with filler; the steps start at line 13</td><td class="fix">Change 2</td></tr>
+      <tr><td class="rule">ST4<small>One level deep</small></td><td>reference/advanced.md:3 links details.md, which SKILL.md never links</td><td class="fix">Change 3: fold details.md into advanced.md</td></tr>
+      <tr><td class="rule">ST5<small>Contents on long files</small></td><td>reference/api.md is 124 lines, no contents list</td><td class="fix">Change 3</td></tr>
+      <tr><td class="rule">ST6<small>Every file reachable</small></td><td>SKILL.md:36 dead link to notes.md; doc2.md orphan; SKILL.md.bak inside the skill</td><td class="fix">Change 3: delete all three</td></tr>
+      <tr><td class="rule">ST7<small>Forward slashes</small></td><td>SKILL.md:30 uses a backslash in the script path</td><td class="fix">Change 3</td></tr>
+      <tr><td class="rule">CT1<small>Concise</small></td><td>SKILL.md:9 explains what a PDF is (no-op)</td><td class="fix">Change 2: delete</td></tr>
+      <tr><td class="rule">CT2<small>Freedom matches risk</small></td><td>SKILL.md:30 form filling has no exact command and no check</td><td class="fix">Change 4</td></tr>
+      <tr><td class="rule">CT3<small>Nothing time-sensitive</small></td><td>SKILL.md:32 <code>before August 2025</code></td><td class="fix">Change 4: state the current API only</td></tr>
+      <tr><td class="rule">CT7<small>A default, not a menu</small></td><td>SKILL.md:9 four libraries, &quot;pick whichever you like&quot;</td><td class="fix">Change 2: pdfplumber for text, pypdf for forms, OCR as the escape hatch</td></tr>
+      <tr><td class="rule">CT9<small>Nothing unfinished</small></td><td>SKILL.md:34 <code>TODO</code></td><td class="fix">Change 4</td></tr>
+      <tr><td class="rule">WF1<small>Checklist with a way back</small></td><td>SKILL.md:15-18 checklist has no &quot;done when&quot; and no go-back line</td><td class="fix">Change 4</td></tr>
+      <tr><td class="rule">WF2<small>Feedback loop</small></td><td>No step checks the filled PDF</td><td class="fix">Change 4</td></tr>
+      <tr><td class="rule">SC1<small>Solve, don&#x27;t defer</small></td><td>fill_form.py:12 a missing file ends in a raw traceback</td><td class="fix">Change 5</td></tr>
+      <tr><td class="rule">SC2<small>No voodoo constants</small></td><td>fill_form.py:7-8 <code>TIMEOUT = 47</code>, <code>RETRIES = 5</code>, unexplained and unused</td><td class="fix">Change 5: delete</td></tr>
+      <tr><td class="rule">SC4<small>Errors that help</small></td><td>fill_form.py prints no message of its own on bad input</td><td class="fix">Change 5</td></tr>
+      <tr><td class="rule">SC5<small>Install lines</small></td><td>pdfplumber (SKILL.md:24) and pypdf (fill_form.py:5) have none</td><td class="fix">Change 5</td></tr>
+      <tr><td class="rule">NM1<small>Not too prescriptive</small></td><td>SKILL.md:11 &quot;read this whole file first&quot;, &quot;follow each instruction&quot; (no-ops)</td><td class="fix">Change 2: delete</td></tr>
+      <tr><td class="rule">NM2<small>No reasoning echo</small></td><td>SKILL.md:20 <code>write out your reasoning in the reply</code></td><td class="fix">Change 2: delete</td></tr>
+      <tr><td class="rule">NM3<small>The reason</small></td><td>No rule carries a reason (SKILL.md:11, 31)</td><td class="fix">Change 4</td></tr>
+      <tr><td class="rule">NM4<small>Brief steering</small></td><td>SKILL.md:11 seven capitalised hard words in one line</td><td class="fix">Change 2</td></tr>
+      <tr><td class="rule">NM5<small>Verification explicit</small></td><td>Nothing says how to check the output</td><td class="fix">Change 4</td></tr>
+      <tr><td class="rule">HK1<small>Hard rules in hooks</small></td><td>SKILL.md:31 <code>must always</code> run a checker that does not exist</td><td class="fix">Needs your decision</td></tr>
+      <tr><td class="rule">TS1<small>Evaluations first</small></td><td>No test prompts in the folder</td><td class="fix">Change 6</td></tr>
+      <tr><td class="rule">TS2<small>Fresh-session test</small></td><td>No record of a with and without run</td><td class="fix">Change 6</td></tr>
+      <tr><td class="rule">TS3<small>Tested on target models</small></td><td>No record; ask which models run it</td><td class="fix">Change 6</td></tr>
+    </tbody>
+  </table>
+</details>
+<details>
+  <summary>Not applicable (9)</summary>
+  <table>
+    <thead><tr><th>Rule</th><th>Why it cannot apply</th></tr></thead>
+    <tbody>
+      <tr><td class="rule">WF3<small>Plan, validate, execute</small></td><td>No batch or destructive steps</td></tr>
+      <tr><td class="rule">CT5<small>Template strictness</small></td><td>No templates</td></tr>
+      <tr><td class="rule">CT6<small>Examples</small></td><td>Output is extracted text; style does not matter</td></tr>
+      <tr><td class="rule">CT8<small>MCP tool names</small></td><td>No MCP tools</td></tr>
+      <tr><td class="rule">CT11<small>Generated output</small></td><td>The skill writes no prompt, template or code for another agent</td></tr>
+      <tr><td class="rule">TS4<small>Lessons from real runs</small></td><td>No run history exists for the sample</td></tr>
+      <tr><td class="rule">LB1<small>Overlapping descriptions</small></td><td>No other skills installed beside the sample</td></tr>
+      <tr><td class="rule">LB2<small>Unused skills</small></td><td>Single-skill audit</td></tr>
+      <tr><td class="rule">LB3<small>Dependencies</small></td><td>Calls no other skill or connector; its packages are SC5</td></tr>
+    </tbody>
+  </table>
+</details>
+<details>
+  <summary>Pass (11)</summary>
+  <table>
+    <thead><tr><th>Rule</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td class="rule">FM4<small>Recognised fields</small></td><td>Note only: <code>version</code> is unknown; move it under <code>metadata:</code></td></tr>
+      <tr><td class="rule">FM5<small>Invocation on purpose</small></td><td>Model-invoked suits a PDF skill</td></tr>
+      <tr><td class="rule">DS1<small>Present and within limits</small></td><td>73 characters, no tags</td></tr>
+      <tr><td class="rule">DS4<small>Key use case first</small></td><td>Well under 1,536 characters</td></tr>
+      <tr><td class="rule">ST1<small>Under 500 lines</small></td><td>36 lines in total</td></tr>
+      <tr><td class="rule">ST8<small>One source of truth</small></td><td>One copy, in examples/pdf-helper/; SKILL.md.bak is a stale backup, covered by ST6</td></tr>
+      <tr><td class="rule">ST3<small>Split by area</small></td><td>Advanced use and the API sit in their own files</td></tr>
+      <tr><td class="rule">CT4<small>One term per concept</small></td><td>&quot;field&quot; used throughout</td></tr>
+      <tr><td class="rule">CT10<small>One rule, one place</small></td><td>No rule repeated across files</td></tr>
+      <tr><td class="rule">WF4<small>Standing instructions</small></td><td>One-shot task; steps fit</td></tr>
+      <tr><td class="rule">SC3<small>Run or read</small></td><td>SKILL.md:30 says &quot;run&quot;</td></tr>
+    </tbody>
+  </table>
+</details>
+
+<footer>
+  <p class="ask">Nothing has been changed yet. Reply with the change numbers to apply.</p>
+  <p>Method: scripts/validate_skill.py and references/audit-checklist.md. Validator output: examples/pdf-helper-validator-output.txt. No other copies, called skills or run history exist for the sample.</p>
+</footer>
+
+</main>
+</body>
+</html>

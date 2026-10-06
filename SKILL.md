@@ -32,9 +32,9 @@ Copy this checklist into the reply and tick it off:
 ```text
 Audit progress:
 - [ ] 1 Validator run on every skill in scope
-- [ ] 2 Each skill read in full: SKILL.md, references, scripts
+- [ ] 2 Each skill read in full, with its evidence: other copies, skills it calls, run history
 - [ ] 3 Every checklist rule marked pass, fail or N/A, with evidence
-- [ ] 4 Report written
+- [ ] 4 HTML report written
 - [ ] 5 User chose which changes to apply
 - [ ] 6 Approved changes applied
 - [ ] 7 Validator re-run with no new errors or warnings
@@ -42,11 +42,11 @@ Audit progress:
 
 **Step 1. Run the validator.** `python3 scripts/validate_skill.py <skill-folder>` for one skill, or `--all <folder>` for a library; then audit in full the skills the user picks, by default the five with the most errors. Add `--json` to parse the results. Done when you have output for every skill in scope.
 
-**Step 2. Read the skill.** All of it: SKILL.md, each reference file, each script. Done when you can name the skill's job, its branches and what every file is for.
+**Step 2. Read the skill and its evidence.** All of it: SKILL.md, each reference file, each script. Then the evidence around it: every other copy of the skill (which one is the source?), each skill or connector it calls, and its run history (retros, run logs, issues, past audits). If it writes a prompt or template, fill it once with a realistic example. Done when you can name the skill's job, its branches, what every file is for, and which copy you are auditing.
 
-**Step 3. Mark every rule.** Open references/audit-checklist.md. Script rules take the validator's result; read rules need evidence you can cite as file and line. Done when no rule is unmarked.
+**Step 3. Mark every rule.** Open references/audit-checklist.md. Script rules take the validator's result; read rules need evidence you can cite as file and line. Check the docs before failing a rule because something "does not exist". Done when no rule is unmarked.
 
-**Step 4. Write the report** in the format at the end of the checklist: the table with fails first, the changes ranked by impact, then anything that needs the user's decision. The worked example in examples/ shows the bar.
+**Step 4. Write the report** as one HTML file from references/report-template.html: what needs the user's decision first, then the suggested changes ranked by impact, then the findings with fails first. The format is at the end of the checklist; the worked example in examples/ shows the bar.
 
 **Step 5. Stop and ask.** End the turn with the numbered changes. Edit nothing until the user picks.
 
@@ -89,7 +89,8 @@ New skill progress:
 - [references/audit-checklist.md](references/audit-checklist.md) - every rule with its ID, why it matters, how to check it and its source, plus the report format and the failure modes. Open in AUDIT step 3, and before calling any skill done.
 - [references/authoring-guide.md](references/authoring-guide.md) - how to write each part: frontmatter fields, description, structure, degrees of freedom, workflows, scripts, hooks, newer models. Open in NEW steps 3 to 5 and in REFINE.
 - [references/testing.md](references/testing.md) - evaluations, fresh-session baselines, Claude A and B, model sweeps, test before you delete. Open in NEW steps 2 and 7, and before cutting instructions.
-- [examples/pdf-helper-report.md](examples/pdf-helper-report.md) - a finished audit report for the flawed sample skill in `examples/pdf-helper/`, built from the validator output in `examples/pdf-helper-validator-output.txt`. Open to see the bar for a report.
+- [references/report-template.html](references/report-template.html) - the HTML report to copy and fill. Open in AUDIT step 4.
+- [examples/pdf-helper-report.html](examples/pdf-helper-report.html) and [examples/pdf-helper-report.md](examples/pdf-helper-report.md) - a finished audit report for the flawed sample skill in `examples/pdf-helper/`, built from the validator output in `examples/pdf-helper-validator-output.txt`. Open to see the bar for a report.
 - `scripts/validate_skill.py` - run it, do not read it. `--help` lists the flags.
 - `scripts/init_skill.py` - run it to scaffold a new skill.
 

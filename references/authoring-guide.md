@@ -48,6 +48,7 @@ The description is the only part of a skill Claude sees before choosing it. Writ
 3. **Third person.** It is injected into the system prompt. "Processes Excel files and generates reports", not "I can help you" or "You can use this".
 4. **One trigger per branch.** Synonyms that rename one job are duplication. Keep the distinct jobs.
 5. **Name situations plainly.** Claude tends to under-use skills rather than over-use them, so name the cases where the skill applies instead of hinting.
+6. **Keyword-only skills are a choice, not a flaw.** Some skills should start only when the user says their name ("release the Kraken"). On claude.ai, where `disable-model-invocation` is not accepted, write the description around the keyword: list its spelling variants, and name the similar words it must not fire on, such as other projects that share the name.
 
 Good, from Anthropic's page:
 

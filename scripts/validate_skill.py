@@ -151,6 +151,7 @@ SHOUT_RE = re.compile(r"\b(?:CRITICAL|MUST|ALWAYS|NEVER)\b")
 HOOK_HINT_RE = re.compile(
     r"\b(?:must always|every (?:single )?time|without exception|no exceptions|before every|after every)\b",
     re.I)
+HARD_WORD_RE = re.compile(r"\b(?:must|always|never|do not|don't|required)\b", re.I)
 GO_BACK_RE = re.compile(
     r"\b(?:return|go back|loop back|jump back|back) to (?:step|stage|phase)\b"
     r"|\brepeat (?:from|until|steps?)\b|\bstart again from\b", re.I)
@@ -1127,7 +1128,10 @@ def validate(root, label, ban_em_dash=False):
             rep.add("WARN", "NM4", r, sorted(set(shouts)), "%d capitalised CRITICAL, MUST, ALWAYS or NEVER. "
                     "Newer models follow brief, plain instructions, and capitals stop standing out when they "
                     "are everywhere. Keep them for true hard lines and give the reason." % len(shouts))
-        hook_hits += [(r, n, m.group(0)) for n, x in enumerate(prose, 1) for m in [HOOK_HINT_RE.search(x)] if m]
+        # "every time" alone is often about variety ("adapt the wording every time"), so it only counts
+        # as a hard rule when the same line also carries a must, always, never or do not.
+        hook_hits += [(r, n, m.group(0)) for n, x in enumerate(prose, 1) for m in [HOOK_HINT_RE.search(x)]
+                      if m and (not m.group(0).lower().startswith("every") or HARD_WORD_RE.search(x))]
         if sum(1 for x in no_inline if CHECKBOX_RE.match(x)) >= 3:
             checkbox_files.append(r)
         if any(GO_BACK_RE.search(x) for x in no_inline):

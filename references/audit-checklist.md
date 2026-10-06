@@ -6,14 +6,14 @@ The single list of rules this skill enforces. AUDIT marks every rule pass, fail 
 - How to mark a rule
 - Frontmatter and naming (FM1 to FM5)
 - Description (DS1 to DS4)
-- Structure (ST1 to ST7)
-- Content (CT1 to CT10)
+- Structure (ST1 to ST8)
+- Content (CT1 to CT11)
 - Workflows (WF1 to WF4)
 - Scripts and packages (SC1 to SC5)
 - Newer models (NM1 to NM5)
 - Hooks (HK1)
-- Testing (TS1 to TS3)
-- Library checks (LB1, LB2)
+- Testing (TS1 to TS4)
+- Library and dependency checks (LB1 to LB3)
 - Failure modes to name
 - Report format
 - Sources
@@ -24,6 +24,7 @@ The single list of rules this skill enforces. AUDIT marks every rule pass, fail 
 - **Check: script + read.** The validator flags candidates. Read each one in context and decide. A pattern match inside a quoted example is not a failure.
 - **Check: read.** Judgment. Cite the file and line that shows the pass or the fail. "Looks fine" is not evidence.
 - **Not applicable (N/A)** only when the rule cannot apply, for example SC1 to SC5 in a skill with no scripts. Say why in the evidence column.
+- **Verify before you flag.** Before failing a rule because a tool, command, field or model "does not exist", check the current docs. If you cannot confirm either way, say "unverified" in the evidence, not fail. A false finding costs the user a decision.
 
 Source codes: P = Anthropic's skill authoring best practices. CC = Claude Code skills docs. HK = Claude Code hooks docs. F5, O55, S55 = the prompting guides for Claude Fable 5, Opus 5.5 and Sonnet 5.5. ADV = advice from practice, not an Anthropic rule. Links are under Sources.
 
@@ -39,7 +40,7 @@ Source codes: P = Anthropic's skill authoring best practices. CC = Claude Code s
 
 - **DS1 Present and within limits.** Not empty, at most 1,024 characters, no XML tags. Check: script. Source: P.
 - **DS2 Third person.** "Processes Excel files", not "I can help you" or "You can use this". Why: the description is injected into the system prompt, and a mixed point of view causes discovery problems. Check: script + read. Source: P.
-- **DS3 What and when, in the user's words.** Says what the skill does and when to use it, with the specific terms people type. Why: Claude picks from possibly 100+ skills using descriptions alone. Check: script (the "when" cue) + read (the words). The "when" part is N/A with `disable-model-invocation: true`, because Claude never sees that description. Source: P.
+- **DS3 What and when, in the user's words.** Says what the skill does and when to use it, with the specific terms people type. Why: Claude picks from possibly 100+ skills using descriptions alone. Check: script (the "when" cue) + read (the words). The "when" part is N/A with `disable-model-invocation: true`, because Claude never sees that description. Ask how the skill should start before judging this rule: a skill meant to fire only on its own keyword is a valid choice. Then the check is whether the description lists the keyword's spelling variants and names the similar words it must not fire on. Source: P, ADV (keyword-only skills).
 - **DS4 Key use case first.** The most important trigger comes first, and `description` plus `when_to_use` stays under 1,536 characters. Why: Claude Code cuts the combined text at that length in the skill listing. Check: script + read. Source: CC.
 
 ## Structure
@@ -51,11 +52,12 @@ Source codes: P = Anthropic's skill authoring best practices. CC = Claude Code s
 - **ST5 Contents list on long files.** Any reference file over 100 lines starts with a contents list. Why: a partial read still shows the full scope. Check: script. Source: P.
 - **ST6 Every file reachable and well named.** No dead links, no orphan files, no backups inside the skill, and names that say what a file holds (`form_validation_rules.md`, not `doc2.md`). Check: script + read. Source: P.
 - **ST7 Forward slashes only.** `scripts/helper.py`, even on Windows. Why: backslash paths break on Mac and Linux. Check: script. Source: P.
+- **ST8 One source of truth.** Find every copy of the skill before auditing: installed, synced, in a repo, drafts. Audit the source, say which copy that is, and flag copies that differ. Why: synced copies are overwritten on the next sync, and a newer draft elsewhere can make half the findings moot. Check: read. Source: ADV.
 
 ## Content
 
 - **CT1 Concise.** Only what Claude does not already know. Challenge every paragraph: does Claude need this, can I assume it knows this, does it justify its tokens? Check: read. Source: P.
-- **CT2 Freedom matches risk.** Plain guidance where many approaches work, a template or parameterised script where one pattern is preferred, an exact script where a mistake is costly (money, deletion, publishing, migrations). Mix levels inside one skill. Test each step by asking "what if Claude does this differently?" If the answer is "nothing bad", loosen it. If it is "real damage", lock it down. Check: read. Source: P (the three levels), ADV (mixing and the test).
+- **CT2 Freedom matches risk.** Plain guidance where many approaches work, a template or parameterised script where one pattern is preferred, an exact script where a mistake is costly (spending money, creating accounts or accepting terms, deletion, publishing or deploying, migrations, fanning out many agents with no spend or time cap). Mix levels inside one skill. Test each step by asking "what if Claude does this differently?" If the answer is "nothing bad", loosen it. If it is "real damage", lock it down. Check: read. Source: P (the three levels), ADV (mixing and the test).
 - **CT3 Nothing time-sensitive.** No rules like `before August 2025, use the old API`. Old ways go under an "Old patterns" heading. Check: script + read. Source: P.
 - **CT4 One term per concept.** Always "field", never a mix of field, box and element. Check: read. Source: P.
 - **CT5 Templates say how strict they are.** Strict ("use this exact structure") for data formats. Flexible ("a sensible default, adapt as needed") elsewhere. Check: read. Source: P.
@@ -64,6 +66,7 @@ Source codes: P = Anthropic's skill authoring best practices. CC = Claude Code s
 - **CT8 MCP tools named in full.** `ServerName:tool_name`. Why: with several servers connected, a bare tool name may not be found. Check: read. Source: P.
 - **CT9 Nothing unfinished.** No `TODO`, `FIXME` or scaffold placeholders. Check: script. Source: ADV.
 - **CT10 One rule, one place.** No rule repeated across files. Fold new guidance into the rule it refines and delete what it replaces. Why: copies drift apart, and each repeat raises the cost of reading. Check: read. Source: ADV.
+- **CT11 Generated output passes the same rules.** When the skill writes something another agent runs (a prompt, a template, code), audit that output too, not only the instructions: one term per concept, every term defined, no placeholder left unfilled, length within its own limit, and the caps or exits it promises actually present. Why: the output is what runs, and its flaws repeat on every use. Check: read (fill the template once with a realistic example). Source: ADV.
 
 ## Workflows
 
@@ -101,13 +104,15 @@ Claude Fable 5, Opus 5.5 and Sonnet 5.5 follow instructions closely. Skills writ
 - **TS1 Evaluations first.** At least three realistic prompts, written before the skill, with a baseline run without it. Check: read (are they in the skill folder or its repo?). Source: P.
 - **TS2 Fresh-session test on real work.** A fresh Claude runs real tasks with the skill on and off, and someone watches which files it opens and what it skips. Why: leftover context from writing the skill hides gaps. Check: read (ask the user). Source: P, CC.
 - **TS3 Tested on the models it will run on.** Haiku: enough guidance? Sonnet: clear and efficient? Opus: no over-explaining? Test prudently: run the full sweep for skills you rely on a lot or that have real consequences, and test the rest on the model you use most. Why: sweeping every skill across every model burns tokens for little gain. Check: read (ask the user). Source: P (the three questions), ADV (testing prudently).
+- **TS4 Lessons from real runs folded in.** Read what the skill's real runs left behind: retros, run logs, issues, past audits. A problem seen in two or more runs should be fixed in the skill; a problem seen once is a candidate to watch. Why: the most important findings often sit in run history, not in the text, and one odd run should not reshape a skill. Check: read (ask the user where run history lives). Source: ADV.
 
-## Library checks
+## Library and dependency checks
 
-Run these when auditing a folder of skills.
+Run these when auditing a folder of skills. In a single-skill audit, run LB1 and LB3 against the skills the target calls and the skills installed beside it.
 
 - **LB1 No overlapping descriptions.** Two skills should not claim the same trigger words. Merge them, or sharpen each description to its own job. Check: read (compare descriptions side by side). Source: ADV.
 - **LB2 Unused skills turned off.** Every model-invoked description costs context on each turn. In Claude Code, `/skill-doctor` shows what each skill costs and how often it gets used. Check: read (ask the user to run it). Source: CC.
+- **LB3 Dependencies present and consistent.** Every skill, connector or tool the skill calls is installed where it runs, or the skill says what to do without it. Their rules do not contradict each other, and they use the same words for the same things. Why: a rule that looks safe alone can clash with the skill it calls, for example one skill allowing sign-ups that the other forbids. Check: read (open each skill it calls). Source: ADV.
 
 ## Failure modes to name
 
@@ -121,11 +126,15 @@ Name the failure in the proposed change, so the user sees the pattern and not on
 
 ## Report format
 
-Use this shape. Fails first, then N/A, then passes. For a folder of skills, start with the validator's `--all` table.
+Write the report as one HTML file, `<skill-name>-audit.html`, from [report-template.html](report-template.html), so the user can see at a glance what needs a decision, what is only a suggestion, and the evidence behind both. The template fixes the order:
+
+1. **Needs your decision:** anything that changes behaviour, deletes a section, or needs a test before a deletion. Each one phrased as a question with its options.
+2. **Suggested changes:** numbered, highest impact first, related rule failures grouped under one change, each with its rule IDs and a one-line reason.
+3. **Findings:** fails first and open, then not applicable and passes, collapsed. Every row has file and line evidence.
+
+Then reply in chat with the counts, the path to the file, and the numbered changes, ending with: "Nothing has been changed yet. Reply with the change numbers to apply." The rows use this content (for a folder of skills, start with the validator's `--all` table):
 
 ```markdown
-# Skill audit: <skill-name>
-
 Validator: <E> errors, <W> warnings, <N> notes. Checklist: <P> pass, <F> fail, <X> not applicable.
 
 | Rule | Result | Evidence | Proposed change |
@@ -133,15 +142,9 @@ Validator: <E> errors, <W> warnings, <N> notes. Checklist: <P> pass, <F> fail, <
 | DS2 Third person | Fail | SKILL.md:3 "I can help you with PDFs" | Rewrite as "Extracts text from PDFs ..." |
 | SC1 Solve, don't defer | N/A | No scripts in the skill | - |
 | ST4 One level deep | Pass | Validator: no ST4 findings | - |
-
-## Changes, highest impact first
-1. <change> - fixes <rule IDs> - <why it matters, one line>
-
-## Needs your decision
-- <anything that changes behaviour, or a deletion that needs a test first>
-
-Nothing has been changed yet. Reply with the change numbers to apply.
 ```
+
+If the skill orchestrates agents or loops, say in the report that this checklist covers how the skill is written, not whether the system it runs is sound (independent judging, budgets, a record of each run, recovery), and recommend a separate system review.
 
 ## Sources
 
