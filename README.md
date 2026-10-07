@@ -194,7 +194,7 @@ examples/                     a broken sample skill, its validator output and it
 
 The failure-mode names used in audits (no-op, duplication, sediment, sprawl, premature completion) come from Matt Pocock's "writing-great-skills". Not affiliated with Anthropic. MIT license, see [LICENSE](LICENSE).
 
-Made by [RoboNuggets](https://www.skool.com/robonuggets)
+Made by Dan Meador with original fork by [RoboNuggets](https://www.skool.com/robonuggets)
 
 [p-concise]: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#concise-is-key
 [p-freedom]: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
