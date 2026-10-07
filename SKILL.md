@@ -1,6 +1,6 @@
 ---
 name: skill-creator-plus
-description: Audits, creates and improves Agent Skills (folders with a SKILL.md) against Anthropic's skill authoring best practices, the Claude Code skills docs and the prompting guides for newer models such as Claude Fable 5 and Opus 5.5. Audit mode reports every rule as pass, fail or not applicable, with file and line evidence and a proposed fix, and changes nothing until the user approves. Use when the user asks to audit, review, check or score a skill or a folder of skills, to create a new skill or turn a repeated workflow into one, to improve, shorten, refactor or update an old skill for newer models, or to run the skill validator.
+description: Audits, creates and improves Agent Skills (folders with a SKILL.md) against Anthropic's skill authoring best practices, the Claude Code skills docs and the prompting guides for newer models such as Claude Fable 5 and Opus 5.5. Audit mode reports every rule as pass, fail or not applicable, with file and line evidence and a proposed fix, cross-checks the result against Anthropic's official skill-creator, and changes nothing until the user approves. Use when the user asks to audit, review, check or score a skill or a folder of skills, to create a new skill or turn a repeated workflow into one, to improve, shorten, refactor or update an old skill for newer models, or to run the skill validator.
 license: MIT
 ---
 
@@ -14,6 +14,7 @@ Audits, builds and improves skills so Claude takes the same process on each run.
 2. **Absorb, don't layer.** Fold new guidance into the rule it refines and delete what it replaces. A good edit usually leaves the skill shorter. Write the reason, not the date, so a later editor can tell whether the rule still holds.
 3. **Test before you delete.** Newer models often do better with fewer instructions, but only a with-skill and without-skill run proves a line is dead weight. Method: references/testing.md, "Test before you delete".
 4. **The validator is the floor.** `scripts/validate_skill.py` checks what a script can check. The judgment rules in references/audit-checklist.md need a careful read.
+5. **Check yourself against the official tool.** The checklist reads the text; Anthropic's skill-creator measures what the skill does. Run it blind, compare, and settle every difference from Anthropic's pages, so this skill learns from the reference instead of drifting away from it.
 
 ## Pick the mode
 
@@ -32,27 +33,30 @@ Copy this checklist into the reply and tick it off:
 ```text
 Audit progress:
 - [ ] 1 Validator run on every skill in scope
-- [ ] 2 Each skill read in full: SKILL.md, references, scripts
+- [ ] 2 Each skill read in full, with its evidence: other copies, skills it calls, run history
 - [ ] 3 Every checklist rule marked pass, fail or N/A, with evidence
-- [ ] 4 Report written
-- [ ] 5 User chose which changes to apply
-- [ ] 6 Approved changes applied
-- [ ] 7 Validator re-run with no new errors or warnings
+- [ ] 4 Cross-check with the official skill-creator run and reconciled
+- [ ] 5 HTML report written
+- [ ] 6 User chose which changes to apply
+- [ ] 7 Approved changes applied
+- [ ] 8 Validator re-run with no new errors or warnings
 ```
 
 **Step 1. Run the validator.** `python3 scripts/validate_skill.py <skill-folder>` for one skill, or `--all <folder>` for a library; then audit in full the skills the user picks, by default the five with the most errors. Add `--json` to parse the results. Done when you have output for every skill in scope.
 
-**Step 2. Read the skill.** All of it: SKILL.md, each reference file, each script. Done when you can name the skill's job, its branches and what every file is for.
+**Step 2. Read the skill and its evidence.** All of it: SKILL.md, each reference file, each script. Then the evidence around it: every other copy of the skill (which one is the source?), each skill or connector it calls, and its run history (retros, run logs, issues, past audits). If it writes a prompt or template, fill it once with a realistic example. Done when you can name the skill's job, its branches, what every file is for, and which copy you are auditing.
 
-**Step 3. Mark every rule.** Open references/audit-checklist.md. Script rules take the validator's result; read rules need evidence you can cite as file and line. Done when no rule is unmarked.
+**Step 3. Mark every rule.** Open references/audit-checklist.md. Script rules take the validator's result; read rules need evidence you can cite as file and line. Check the docs before failing a rule because something "does not exist". Done when no rule is unmarked.
 
-**Step 4. Write the report** in the format at the end of the checklist: the table with fails first, the changes ranked by impact, then anything that needs the user's decision. The worked example in examples/ shows the bar.
+**Step 4. Cross-check.** Follow references/cross-check.md: pick the tier (Full, Trigger only or Off), run Anthropic's skill-creator on the skill in a fresh agent that hasn't seen your findings, then reconcile. Every difference is settled from Anthropic's pages, with the link and the date checked, as confirmed, dismissed or unverified. A problem the official pass found that no rule covers goes into references/candidate-rules.md. Done when every finding from either pass is settled, or the report says why the cross-check couldn't run.
 
-**Step 5. Stop and ask.** End the turn with the numbered changes. Edit nothing until the user picks.
+**Step 5. Write the report** as one HTML file from references/report-template.html: what needs the user's decision first, then the suggested changes ranked by impact, then the findings with fails first, then the cross-check. The format is at the end of the checklist; the worked example in examples/ shows the bar.
 
-**Step 6. Apply the approved changes** following REFINE. Before deleting instructions as too prescriptive (rule NM1), run the test in references/testing.md.
+**Step 6. Stop and ask.** End the turn with the numbered changes. Edit nothing until the user picks.
 
-**Step 7. Re-run the validator.** If it shows a new error or warning, return to Step 6.
+**Step 7. Apply the approved changes** following REFINE. Before deleting instructions as too prescriptive (rule NM1), run the test in references/testing.md.
+
+**Step 8. Re-run the validator.** If it shows a new error or warning, return to Step 7.
 
 ## NEW
 
@@ -89,7 +93,10 @@ New skill progress:
 - [references/audit-checklist.md](references/audit-checklist.md) - every rule with its ID, why it matters, how to check it and its source, plus the report format and the failure modes. Open in AUDIT step 3, and before calling any skill done.
 - [references/authoring-guide.md](references/authoring-guide.md) - how to write each part: frontmatter fields, description, structure, degrees of freedom, workflows, scripts, hooks, newer models. Open in NEW steps 3 to 5 and in REFINE.
 - [references/testing.md](references/testing.md) - evaluations, fresh-session baselines, Claude A and B, model sweeps, test before you delete. Open in NEW steps 2 and 7, and before cutting instructions.
-- [examples/pdf-helper-report.md](examples/pdf-helper-report.md) - a finished audit report for the flawed sample skill in `examples/pdf-helper/`, built from the validator output in `examples/pdf-helper-validator-output.txt`. Open to see the bar for a report.
+- [references/cross-check.md](references/cross-check.md) - running Anthropic's skill-creator blind beside the checklist, reconciling the two from Anthropic's pages, and learning from the gaps. Open in AUDIT step 4.
+- [references/candidate-rules.md](references/candidate-rules.md) - problems the official pass found that no rule covers yet. Open in AUDIT step 4 to add to it, and before calling a new rule done.
+- [references/report-template.html](references/report-template.html) - the HTML report to copy and fill. Open in AUDIT step 5.
+- [examples/pdf-helper-report.html](examples/pdf-helper-report.html) and [examples/pdf-helper-report.md](examples/pdf-helper-report.md) - a finished audit report for the flawed sample skill in `examples/pdf-helper/`, built from the validator output in `examples/pdf-helper-validator-output.txt`. Open to see the bar for a report.
 - `scripts/validate_skill.py` - run it, do not read it. `--help` lists the flags.
 - `scripts/init_skill.py` - run it to scaffold a new skill.
 

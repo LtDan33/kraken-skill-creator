@@ -1,6 +1,6 @@
 # Skill audit: pdf-helper
 
-Validator: 8 errors, 11 warnings, 6 notes (full output in pdf-helper-validator-output.txt). Checklist: 10 pass, 30 fail, 6 not applicable.
+Validator: 8 errors, 11 warnings, 6 notes (full output in pdf-helper-validator-output.txt). Checklist: 11 pass, 30 fail, 9 not applicable.
 
 | Rule | Result | Evidence | Proposed change |
 |---|---|---|---|
@@ -38,13 +38,17 @@ Validator: 8 errors, 11 warnings, 6 notes (full output in pdf-helper-validator-o
 | CT5 Template strictness | N/A | No templates | - |
 | CT6 Examples | N/A | Output is extracted text; style does not matter | - |
 | CT8 MCP tool names | N/A | No MCP tools | - |
-| LB1 Overlapping descriptions | N/A | Single-skill audit | - |
+| CT11 Generated output | N/A | The skill writes no prompt, template or code for another agent | - |
+| TS4 Lessons from real runs | N/A | No run history exists for the sample | - |
+| LB1 Overlapping descriptions | N/A | No other skills installed beside the sample | - |
 | LB2 Unused skills | N/A | Single-skill audit | - |
+| LB3 Dependencies | N/A | Calls no other skill or connector; its packages are SC5 | - |
 | FM4 Recognised fields | Pass | Note only: `version` is unknown; move it under `metadata:` | Change 1 |
 | FM5 Invocation on purpose | Pass | Model-invoked suits a PDF skill | - |
 | DS1 Present and within limits | Pass | 73 characters, no tags | - |
 | DS4 Key use case first | Pass | Well under 1,536 characters | - |
 | ST1 Under 500 lines | Pass | 36 lines in total | - |
+| ST8 One source of truth | Pass | One copy, in examples/pdf-helper/; SKILL.md.bak is a stale backup, covered by ST6 | - |
 | ST3 Split by area | Pass | Advanced use and the API sit in their own files | - |
 | CT4 One term per concept | Pass | "field" used throughout | - |
 | CT10 One rule, one place | Pass | No rule repeated across files | - |

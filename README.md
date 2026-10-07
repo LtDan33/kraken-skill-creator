@@ -6,7 +6,9 @@
 
 A free Claude skill that audits, builds and improves other skills against Anthropic's own skill-writing rules, including what changed for the newest Claude models.
 
-Point it at a skill (or a whole folder of skills) and it gives you a findings report first: every rule marked pass, fail or not applicable, with the file and line as evidence and a proposed fix. It changes nothing until you say which fixes to apply.
+Point it at a skill (or a whole folder of skills) and it gives you a findings report first: one clean HTML page that shows what needs your decision, what it suggests changing, and every rule marked pass, fail or not applicable with the file and line as evidence. It changes nothing until you say which fixes to apply.
+
+Every audit also runs Anthropic's own skill-creator on the same skill, blind, and compares the two. The checklist reads the skill's text; the official tool measures what the skill does. Each difference is settled from Anthropic's pages, and anything the official tool catches that the checklist has no rule for becomes a candidate rule, so the checklist keeps learning from the reference instead of drifting away from it.
 
 ## Why this matters now
 
@@ -28,10 +30,10 @@ This skill checks all of that, and the validator script checks the mechanical pa
 
 ```bash
 # for all your projects
-git clone https://github.com/robonuggets/skill-creator-plus ~/.claude/skills/skill-creator-plus
+git clone https://github.com/LtDan33/kraken-skill-creator ~/.claude/skills/skill-creator-plus
 
 # or for one project only, from the project folder
-git clone https://github.com/robonuggets/skill-creator-plus .claude/skills/skill-creator-plus
+git clone https://github.com/LtDan33/kraken-skill-creator .claude/skills/skill-creator-plus
 ```
 
 On Windows, `~/.claude` is the `.claude` folder inside your user folder. Downloading the ZIP from GitHub and copying the folder there works too.
@@ -44,13 +46,40 @@ Just ask in plain words. Three modes:
 
 | Mode | Say something like | You get |
 |---|---|---|
-| AUDIT | "Audit my deploy skill against Anthropic's rules." / "Check every skill in ~/.claude/skills and tell me what to fix first." | A report: one row per rule, fails first, ranked fixes. Nothing is edited until you pick. |
+| AUDIT | "Audit my deploy skill against Anthropic's rules." / "Check every skill in ~/.claude/skills and tell me what to fix first." | An HTML report: decisions first, then ranked fixes, then one row per rule with fails first, then the cross-check against Anthropic's skill-creator. Nothing is edited until you pick. |
 | NEW | "Make this a skill, we write release notes like this every Friday." | Test prompts first, then a new skill folder that passes the validator. |
 | REFINE | "The report skill keeps forgetting the date filter. Fix the skill." | The rule rewritten around its reason, usually shorter than before. |
 
 "Improve my skill for Opus 5.5" runs AUDIT, then REFINE with the fixes you approve.
 
-See [examples/pdf-helper-report.md](examples/pdf-helper-report.md) for a full audit of a deliberately broken sample skill.
+See [examples/pdf-helper-report.html](examples/pdf-helper-report.html) (download and open it in a browser) or the same report as [Markdown](examples/pdf-helper-report.md) for a full audit of a deliberately broken sample skill.
+
+## What an audit reads besides the skill
+
+The text of a skill is only part of the story. Before marking rules, an audit also looks at:
+
+- **Every copy of the skill.** Installed, synced, in a repo, drafts. It audits the source and flags copies that differ, because a synced copy is overwritten on the next sync and a newer draft can make findings moot.
+- **The skills and connectors it calls.** A rule that looks safe alone can clash with the skill it calls, for example one allowing sign-ups that the other forbids.
+- **Its run history.** Retros, run logs, issues and past audits. A problem seen in two or more real runs should be fixed in the skill; one seen once is a candidate.
+- **What it generates.** If the skill writes a prompt, template or code for another agent, the audit fills it once and checks that output too.
+
+It also checks the docs before reporting that a tool or command does not exist, and asks how a skill should start before judging its description: a skill that should fire only on its own name is a valid choice.
+
+## The cross-check
+
+| Tier | When | What the official skill-creator runs |
+|---|---|---|
+| Full | Skills that spend money, publish, deploy, run agents, or that you rely on heavily | Three test prompts with and without the skill, graded, plus the trigger eval |
+| Trigger only | Other skills Claude starts on its own | The trigger eval: does it fire on the right requests and stay quiet on near-misses? |
+| Off | Quick reviews | Nothing; the report says so |
+
+The official pass runs in a fresh agent that never sees the checklist findings. Then every finding from either side is settled:
+
+- **Both found it:** confirmed.
+- **Only one found it:** looked up in Anthropic's pages, with the link and date, and marked confirmed, dismissed or unverified.
+- **They disagree:** measured behavior wins for that skill.
+
+A problem the official pass finds that no rule covers goes into `references/candidate-rules.md`, and becomes a rule once it shows up in two different skills' audits. The trigger eval needs the `claude` command-line tool, so outside Claude Code the cross-check runs the behavior part only and says so.
 
 ## The validator
 
@@ -91,7 +120,7 @@ pdf-helper       8        11      6  FM1 FM2 ST4 ST5
 
 ## The rules
 
-46 rules. **Script** means the validator decides. **Script + read** means the validator flags candidates and Claude confirms in context. **Read** means Claude judges it during an audit and cites the evidence. "Advice" marks rules from practice rather than from Anthropic's docs.
+50 rules. **Script** means the validator decides. **Script + read** means the validator flags candidates and Claude confirms in context. **Read** means Claude judges it during an audit and cites the evidence. "Advice" marks rules from practice rather than from Anthropic's docs.
 
 | ID | Rule | Checked by | Source |
 |---|---|---|---|
@@ -111,8 +140,9 @@ pdf-helper       8        11      6  FM1 FM2 ST4 ST5
 | ST5 | Contents list on reference files over 100 lines | Script | [Best practices: Table of contents][p-toc] |
 | ST6 | Every file reachable and well named; no dead links or backups | Script + read | [Best practices: Runtime environment][p-runtime] |
 | ST7 | Forward slashes in every path | Script | [Best practices: Avoid Windows-style paths][p-paths] |
+| ST8 | One source of truth: every copy found, the source audited | Read | Advice |
 | CT1 | Concise: only what Claude does not already know | Read | [Best practices: Concise is key][p-concise] |
-| CT2 | Degrees of freedom match the risk; mix levels; "what if Claude does this differently?" | Read | [Best practices: Degrees of freedom][p-freedom] + advice |
+| CT2 | Degrees of freedom match the risk (money, accounts, deploys, agent fan-out); mix levels; "what if Claude does this differently?" | Read | [Best practices: Degrees of freedom][p-freedom] + advice |
 | CT3 | Nothing time-sensitive; old ways under "Old patterns" | Script + read | [Best practices: Time-sensitive information][p-time] |
 | CT4 | One term per concept | Read | [Best practices: Consistent terminology][p-terms] |
 | CT5 | Templates say how strict they are | Read | [Best practices: Template pattern][p-template] |
@@ -121,6 +151,7 @@ pdf-helper       8        11      6  FM1 FM2 ST4 ST5
 | CT8 | MCP tools named in full, `ServerName:tool_name` | Read | [Best practices: MCP tool references][p-mcp] |
 | CT9 | No `TODO`, `FIXME` or unfilled placeholders | Script | Advice |
 | CT10 | One rule, one place | Read | Advice |
+| CT11 | Generated output (prompts, templates, code) passes the same rules | Read | Advice |
 | WF1 | Checklist with "done when" lines and a go-back line | Script + read | [Best practices: Workflows for complex tasks][p-workflows] |
 | WF2 | Feedback loop: check, fix, repeat (a style guide counts as a check) | Read | [Best practices: Feedback loops][p-loops] |
 | WF3 | Plan, validate, execute for batch or destructive jobs | Read | [Best practices: Verifiable intermediate outputs][p-plan] |
@@ -139,8 +170,10 @@ pdf-helper       8        11      6  FM1 FM2 ST4 ST5
 | TS1 | At least three evaluations, built first, with a baseline | Read | [Best practices: Build evaluations first][p-evals] |
 | TS2 | Fresh Claude tests on real work, skill on and off | Read | [Best practices: Iterate with Claude][p-ab], [Claude Code: Evaluate][cc-evals] |
 | TS3 | Tested on the models it runs on; full sweep only where it matters | Read | [Best practices: Test with all models][p-models] + advice |
+| TS4 | Lessons from real runs folded in; two runs to change a rule | Read | Advice |
 | LB1 | No two skills claim the same triggers | Read | Advice |
 | LB2 | Unused skills found with `/skill-doctor` and turned off | Read | [Claude Code: Find unused skills][cc-unused] |
+| LB3 | Skills and connectors it calls are present, consistent and use the same words | Read | Advice |
 
 Rules were checked against Anthropic's pages on 2026-10-05.
 
@@ -149,11 +182,14 @@ Rules were checked against Anthropic's pages on 2026-10-05.
 ```text
 SKILL.md                      the skill: rules, the three modes, links to the rest
 references/audit-checklist.md every rule with why, how to check, and the report format
+references/report-template.html the HTML audit report to copy and fill
+references/cross-check.md      running the official skill-creator blind and reconciling the two
+references/candidate-rules.md  checklist gaps the official tool found, waiting for a second sighting
 references/authoring-guide.md how to write each part of a skill
 references/testing.md         evaluations, baselines, model sweeps, test before you delete
 scripts/validate_skill.py     the validator
 scripts/init_skill.py         scaffolds a new skill that passes the validator
-examples/                     a broken sample skill, its validator output and its audit report
+examples/                     a broken sample skill, its validator output and its audit report (HTML and Markdown)
 ```
 
 ## Credits and license

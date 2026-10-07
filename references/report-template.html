@@ -1,0 +1,154 @@
+<!doctype html>
+<!--
+  Audit report template. Copy it to <skill-name>-audit.html and replace every {{...}}.
+  Repeat the blocks marked REPEAT once per item and delete the sample rows.
+  Keep it as it is: one file, no scripts, no web fonts, so it opens anywhere, offline included.
+  Order is fixed: decisions first, then suggested changes, then the evidence, then the cross-check.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{skill-name}} audit</title>
+<style>
+:root{--bg:#f8fafc;--card:#fff;--ink:#0f172a;--muted:#475569;--line:#e2e8f0;--accent:#4338ca;
+  --fail:#be123c;--fail-bg:#fff1f2;--pass:#047857;--pass-bg:#ecfdf5;--na:#64748b;--na-bg:#f1f5f9;
+  --decide:#b45309;--decide-bg:#fffbeb;--code:#f1f5f9}
+@media (prefers-color-scheme:dark){:root{--bg:#0f172a;--card:#1e293b;--ink:#f1f5f9;--muted:#cbd5e1;--line:#334155;
+  --accent:#a5b4fc;--fail:#fb7185;--fail-bg:#4c0519;--pass:#34d399;--pass-bg:#022c22;--na:#94a3b8;--na-bg:#1e293b;
+  --decide:#fbbf24;--decide-bg:#451a03;--code:#334155}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:40px 16px 64px}
+h1{font-size:2rem;line-height:1.2;margin:0}
+h2{font-size:1.35rem;margin:40px 0 12px}
+h3{font-size:1.05rem;margin:0 0 4px}
+p{margin:0}
+code{font:0.85em ui-monospace,Menlo,Consolas,monospace;background:var(--code);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+.meta{color:var(--muted);margin-top:8px}
+.score{margin-top:24px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;gap:32px;flex-wrap:wrap}
+.score div{color:var(--muted);font-size:.9rem}
+.score b{display:block;font-size:1.8rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.f b{color:var(--fail)} .n b{color:var(--na)} .p b{color:var(--pass)} .v b{color:var(--ink)}
+.empty{color:var(--muted);font-style:italic}
+.decide{background:var(--decide-bg);border:1px solid var(--line);border-left:4px solid var(--decide);border-radius:8px;padding:14px 18px;margin-bottom:10px}
+.decide p{color:var(--muted)}
+ol.changes{margin:0;padding:0;list-style:none;counter-reset:c}
+ol.changes li{counter-increment:c;position:relative;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 18px 14px 56px;margin-bottom:10px}
+ol.changes li::before{content:counter(c);position:absolute;left:16px;top:14px;width:28px;height:28px;border-radius:50%;border:2px solid var(--accent);color:var(--accent);display:grid;place-items:center;font-weight:700}
+.why{color:var(--muted)}
+.ids{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+.ids span{font-size:.8rem;font-weight:700;padding:0 8px;border-radius:999px;background:var(--fail-bg);color:var(--fail)}
+.pattern{font-size:.85rem;font-weight:700;color:var(--accent)}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden}
+summary{cursor:pointer;padding:14px 18px;font-weight:700}
+summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th,td{text-align:left;vertical-align:top;padding:10px 18px;border-top:1px solid var(--line)}
+th{color:var(--muted);font-size:.85rem}
+td.rule{width:28%;font-weight:700} td.rule small{display:block;font-weight:400;color:var(--muted)}
+td.fix{width:14%;color:var(--muted)}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+footer .ask{color:var(--ink);font-weight:700;font-size:1rem;margin-bottom:8px}
+@media (max-width:640px){table,tbody,tr,td{display:block;width:100%}thead{display:none}tr{border-top:1px solid var(--line);padding:10px 16px}td{border:0;padding:2px 0}td.rule,td.fix{width:100%}}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>{{skill-name}} audit</h1>
+  <p class="meta">{{path of the copy audited, and which copy is the source}}. {{date}}. Report only: nothing has been changed.</p>
+  <div class="score">
+    <div class="v"><b>{{E}} / {{W}} / {{N}}</b>validator errors / warnings / notes</div>
+    <div class="f"><b>{{F}}</b>fail</div>
+    <div class="n"><b>{{X}}</b>not applicable</div>
+    <div class="p"><b>{{P}}</b>pass</div>
+  </div>
+</header>
+
+<h2>Needs your decision</h2>
+<!-- Anything that changes behaviour, deletes a section, or needs a test first. If none: <p class="empty">Nothing needs your decision.</p> -->
+<!-- REPEAT -->
+<div class="decide">
+  <h3>{{question, phrased so it can be answered}}</h3>
+  <p>{{the options and what each one costs, two or three sentences}}</p>
+</div>
+
+<h2>Suggested changes</h2>
+<!-- Ranked by impact on whether the skill triggers and behaves correctly. Numbers match the reply. -->
+<ol class="changes">
+  <!-- REPEAT -->
+  <li>
+    <h3>{{change, as an action}}</h3>
+    <p class="why">{{why it matters, one line}}</p>
+    <div class="ids"><span>{{rule ID}}</span></div>
+  </li>
+</ol>
+
+<h2>Findings</h2>
+<details open>
+  <summary>Fail ({{F}})</summary>
+  <table>
+    <thead><tr><th>Rule</th><th>Evidence</th><th>Fix</th></tr></thead>
+    <tbody>
+      <!-- REPEAT. Evidence is file:line plus the quoted text. Add the failure mode when one fits. -->
+      <tr><td class="rule">{{ID}}<small>{{rule name}}</small></td><td><code>{{file:line}}</code> "{{quote}}"<br><span class="pattern">{{failure mode}}</span></td><td class="fix">Change {{n}}</td></tr>
+    </tbody>
+  </table>
+</details>
+<details>
+  <summary>Not applicable ({{X}})</summary>
+  <table>
+    <thead><tr><th>Rule</th><th>Why it cannot apply</th></tr></thead>
+    <tbody>
+      <!-- REPEAT -->
+      <tr><td class="rule">{{ID}}<small>{{rule name}}</small></td><td>{{reason}}</td></tr>
+    </tbody>
+  </table>
+</details>
+<details>
+  <summary>Pass ({{P}})</summary>
+  <table>
+    <thead><tr><th>Rule</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <!-- REPEAT -->
+      <tr><td class="rule">{{ID}}<small>{{rule name}}</small></td><td>{{file:line or validator result}}</td></tr>
+    </tbody>
+  </table>
+</details>
+
+<h2>Cross-check with the official skill-creator</h2>
+<!-- Tier and what ran, then one row per finding that only one pass found. If the cross-check was off or couldn't run, say why in one line and delete the table. -->
+<p class="meta">Tier: {{Full | Trigger only | Off}}. {{what ran, and anything that couldn't}}. Both passes found {{n}}; only the checklist {{n}}; only the official pass {{n}}.</p>
+<details open>
+  <summary>Differences and how they were settled</summary>
+  <table>
+    <thead><tr><th>Finding</th><th>Found by</th><th>Settled by</th><th>Result</th></tr></thead>
+    <tbody>
+      <!-- REPEAT. Result: confirmed, dismissed or unverified. Settled by: the Anthropic page and the date checked. -->
+      <tr><td class="rule">{{finding}}<small>{{rule ID, or "no rule covers this"}}</small></td><td>{{checklist | official pass}}</td><td>{{source link}}, checked {{date}}</td><td class="fix">{{result}}</td></tr>
+    </tbody>
+  </table>
+</details>
+<details>
+  <summary>Trigger results ({{queries right}} of {{total}})</summary>
+  <table>
+    <thead><tr><th>Query</th><th>Should trigger</th><th>Trigger rate</th></tr></thead>
+    <tbody>
+      <!-- REPEAT, queries it got wrong first -->
+      <tr><td>{{query}}</td><td>{{yes | no}}</td><td>{{rate}}</td></tr>
+    </tbody>
+  </table>
+</details>
+<!-- Candidate rules added this audit, one line each, or delete this paragraph. -->
+<p class="meta">Candidate rules added: {{one line each}}</p>
+
+<footer>
+  <p class="ask">Nothing has been changed yet. Reply with the change numbers to apply.</p>
+  <p>Method: scripts/validate_skill.py and references/audit-checklist.md. {{evidence read beyond the skill: other copies, skills it calls, run history}}</p>
+</footer>
+
+</main>
+</body>
+</html>
